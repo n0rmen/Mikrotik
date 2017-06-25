@@ -1,0 +1,20 @@
+#editar estas variables para adaptar a las interfaces existentes, interface del lado de internet,intranet, y velocidades(solo usamos el
+#valor de descarga en ambas queues,estas queues deben ser puestas en primer orden para ser prioritarias sobre otras queues simples existentes
+:global INTERFACEWAN "Brdlink"
+:global INTERFACECLIENTES "bridge1"
+:global SUBIDA "1M"
+:global BAJADA "4M"
+# --------------------FIN DE LA EDICION POR EL IMPLEMENTADOR--------------------------------------
+
+
+
+/ip firewall mangle
+add action=add-src-to-address-list address-list=ooklaips address-list-timeout=5m chain=prerouting comment=">>OOKLA -SPEEDTEST" content=ABCDEFGHIJABCDEFGHIJABCDEFGHIJ
+add action=mark-connection chain=postrouting dst-address-list=ooklaips new-connection-mark=ooklaconnUP passthrough=yes
+add action=mark-connection chain=prerouting new-connection-mark=ooklaconnDN passthrough=yes src-address-list=ooklaips
+add action=mark-packet chain=prerouting connection-mark=ooklaconnDN new-packet-mark=ooklapacketsDN passthrough=no
+add action=mark-packet chain=prerouting connection-mark=ooklaconnUP new-packet-mark=ooklapacketsUP passthrough=no
+
+/queue simple
+add max-limit=0/$BAJADA name=SpeedtestDown packet-marks=ooklapacketsDN queue=default/default target=$INTERFACECLIENTES
+add max-limit=0/$SUBIDA name=SpeedtestUP packet-marks=ooklapacketsUP queue=default/default target=$INTERFACEWAN
