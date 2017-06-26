@@ -1,13 +1,12 @@
-#marca las actualizaciones de windows 
+# Marca las actualizaciones de windows, protocolo tcp puerto destino 80, utilizando como dst-address el asn completo de microsoft
+
+
 /ip firewall mangle
 add action=mark-connection chain=prerouting comment=">>Windows update y bing" dst-address-list=microsoft dst-port=80 \
     new-connection-mark=wupdateconn passthrough=yes protocol=tcp
 add action=mark-packet chain=prerouting connection-mark=wupdateconn \
     new-packet-mark=wupdatepacket passthrough=no
     
-   
-    
- 
 /ip firewall address-list
 add address=windowsupdate.microsoft.com list=microsoft
 add address=update.microsoft.com list=microsoft
