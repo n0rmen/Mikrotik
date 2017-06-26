@@ -1,7 +1,7 @@
 #marca las actualizaciones de windows 
 /ip firewall mangle
-add action=mark-connection chain=prerouting comment=">>Windows update y bing" \
-    dst-address-list=microsoft dst-port=80 new-connection-mark=wupdateconn passthrough=yes
+add action=mark-connection chain=prerouting comment=">>Windows update y bing" dst-address-list=microsoft dst-port=80 \
+    new-connection-mark=wupdateconn passthrough=yes protocol=tcp
 add action=mark-packet chain=prerouting connection-mark=wupdateconn \
     new-packet-mark=wupdatepacket passthrough=no
     
