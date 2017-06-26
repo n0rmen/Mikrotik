@@ -1,12 +1,12 @@
-
-
-
+#Marcado de netflix y limitacion a 1M
 
 /ip firewall mangle
 add action=mark-connection chain=prerouting comment=>>Netflix content=nflxvideo \
     new-connection-mark=netflixconn passthrough=yes
 add action=mark-packet chain=prerouting connection-mark=netflixconn \
     new-packet-mark=netflixpacket passthrough=no
+    
+#implementar queue tree con una queue unica para NETFLIX  limitado a 1M (pcq-rate)
 /queue type
 add kind=pcq name=Netflix pcq-rate=1M pcq-classifier=dst-address
 /queue tree
