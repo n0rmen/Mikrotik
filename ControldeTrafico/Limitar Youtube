@@ -1,0 +1,15 @@
+#Marcado de Youtube y limitacion a 1M para todos los usuarios del equipo en una sola queue
+
+/ip firewall mangle
+add action=mark-connection chain=prerouting comment=>>Youtube content=googlevideo \
+    new-connection-mark=youtubeconn passthrough=yes
+add action=mark-packet chain=prerouting connection-mark=youtubeconn \
+    new-packet-mark=youtubepacket passthrough=no
+    
+#implementar queue tree con una queue unica para Youtube  limitado a 1M (pcq-rate)
+/queue type
+add kind=pcq name=Youtube pcq-rate=1M pcq-classifier=dst-address
+/queue tree
+add name=SalidaGeneral parent=global queue=Youtube
+add name=Youtube packet-mark=youtubepacket parent=SalidaGeneral queue=Youtube
+
