@@ -1,0 +1,18 @@
+Servicios:
+dns
+http
+https
+ntp
+icmp
+rdp 3389
+telnet
+ssh
+voip
+descargas
+ftp
+speedtest
+winbox 8291
+facebook
+youtube
+netflix
+whatsapp
