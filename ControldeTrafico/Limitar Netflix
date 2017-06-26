@@ -7,10 +7,11 @@ add action=mark-connection chain=prerouting comment=>>Netflix content=nflxvideo 
     new-connection-mark=netflixconn passthrough=yes
 add action=mark-packet chain=prerouting connection-mark=netflixconn \
     new-packet-mark=netflixpacket passthrough=no
-/queue tree
-add name=SalidaGeneral parent=global queue=pcq-download-default
-add name=netflix packet-mark=netflixpackets parent=SalidaGeneral queue=Netflix
 /queue type
 add kind=pcq name=clientes pcq-classifier=src-address,src-port pcq-rate=1M
 set 10 kind=pcq pcq-classifier=dst-address
+/queue tree
+add name=SalidaGeneral parent=global queue=pcq-download-default
+add name=netflix packet-mark=netflixpackets parent=SalidaGeneral queue=Netflix
+
 
