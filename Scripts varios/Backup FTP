@@ -15,13 +15,14 @@
 export  file="$filename"
 # /system backup save name="$filename"
 
-:log info "Backup creado correctamente"
-
 /tool fetch address=$ftpserver src-path="$filename.rsc" user=$username mode=ftp password=$password dst-path=($folder . "/$filename.rsc") upload=yes
 # /tool fetch address=$ftpserver src-path="$filename.backup" user=$username mode=ftp password=$password dst-path=($folder . "/$filename.backup") upload=yes
 #descomentar esta linea si se quieren obtener archivos .backup ademas del export 
-
+:log info "Backup subido al FTP";
 /file remove "$filename.rsc"
 /file remove "$filename.backup"
-:log info "Backup subido y archivos eliminados"
+
+
+
+
 
