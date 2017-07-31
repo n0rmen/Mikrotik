@@ -1,8 +1,8 @@
 # editar esto con los datos correspondientes, la carpeta tiene que ser un directorio existente si o si
 :global folder "flash/"
-:global password "wincornixdorf"
-:global username "eze"
-:global ftpserver "wifivillariohondo.ddns.net"
+:global password "contraseña"
+:global username "usuario"
+:global ftpserver "url.ddns.net"
 
 :global hostname ([/system identity get name]);
 :global time [/system clock get time];
