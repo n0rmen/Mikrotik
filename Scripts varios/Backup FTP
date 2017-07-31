@@ -1,11 +1,10 @@
 # editar esto con los datos correspondientes, la carpeta tiene que ser un directorio existente si o si
-:global hostname "nombremikrotik";
-:global folder "flash"
-:global password "contraseña"
-:global username "usuario"
-:global ftpserver "url.ddns.net"
+:global folder "flash/"
+:global password "wincornixdorf"
+:global username "eze"
+:global ftpserver "wifivillariohondo.ddns.net"
 
-
+:global hostname ([/system identity get name]);
 :global time [/system clock get time];
 :global date ([:pick [/system clock get date] 0 3]  \
 . [:pick [/system clock get date] 4 6] \
@@ -23,7 +22,3 @@ export  file="$filename"
 /file remove "$filename.backup"
 
 
-
-
-
-.
