@@ -1,0 +1,27 @@
+# editar esto con los datos correspondientes, la carpeta tiene que ser un directorio existente si o si
+:global hostname "nombremikrotik";
+:global folder "flash"
+:global password "contraseña"
+:global username "usuario"
+:global ftpserver "url.ddns.net"
+
+
+:global time [/system clock get time];
+:global date ([:pick [/system clock get date] 0 3]  \
+. [:pick [/system clock get date] 4 6] \
+. [:pick [/system clock get date] 7 11]);
+:local filename "$date----$hostname";
+# :local filename "$date---$time---$hostname";
+export  file="$filename"
+# /system backup save name="$filename"
+
+:log info "Backup creado correctamente"
+
+/tool fetch address=$ftpserver src-path="$filename.rsc" user=$username mode=ftp password=$password dst-path=($folder . "/$filename.rsc") upload=yes
+# /tool fetch address=$ftpserver src-path="$filename.backup" user=$username mode=ftp password=$password dst-path=($folder . "/$filename.backup") upload=yes
+#descomentar esta linea si se quieren obtener archivos .backup ademas del export 
+
+/file remove "$filename.rsc"
+/file remove "$filename.backup"
+:log info "Backup subido y archivos eliminados"
+
