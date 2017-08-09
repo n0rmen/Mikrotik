@@ -1,0 +1,112 @@
+/interface pppoe-client
+add disabled=no interface=WAN0 name=WAN0-Movistar password=speedy user=speedy
+add disabled=no interface=WAN1 name=WAN1-Movistar password=speedy user=speedy
+add disabled=no interface=WAN2 name=WAN2-Movistar password=speedy user=speedy
+/ip neighbor discovery
+set LAN comment="Salida Administrador"
+set WAN0 comment="Movistar 13Mb"
+set WAN1 comment="++++Movistar 17Mb"
+set WAN2 comment="++++Movistar 17Mb"
+set WAN3 comment="++++Claro 24Mb"
+set WAN4 comment="++++Claro 24Mb"
+/queue type
+add kind=pcq name=pcq1-down pcq-classifier=dst-address pcq-dst-address6-mask=64 pcq-src-address6-mask=64 pcq-total-limit=20000KiB
+add kind=pcq name=pcq2-down pcq-classifier=dst-address pcq-dst-address6-mask=64 pcq-src-address6-mask=64 pcq-total-limit=20000KiB
+add kind=pcq name=pcq3-down pcq-classifier=dst-address pcq-dst-address6-mask=64 pcq-src-address6-mask=64 pcq-total-limit=20000KiB
+add kind=pcq name=pcq4-down pcq-classifier=dst-address pcq-dst-address6-mask=64 pcq-src-address6-mask=64 pcq-total-limit=20000KiB
+add kind=pcq name=pcq1-up pcq-classifier=src-address pcq-dst-address6-mask=64 pcq-src-address6-mask=64 pcq-total-limit=20000KiB
+add kind=pcq name=pcq2-up pcq-classifier=src-address pcq-dst-address6-mask=64 pcq-src-address6-mask=64 pcq-total-limit=20000KiB
+add kind=pcq name=pcq3-up pcq-classifier=src-address pcq-dst-address6-mask=64 pcq-src-address6-mask=64 pcq-total-limit=20000KiB
+add kind=pcq name=pcq4-up pcq-classifier=src-address pcq-dst-address6-mask=64 pcq-src-address6-mask=64 pcq-total-limit=20000KiB
+add kind=pcq name=pcq0-down pcq-classifier=dst-address pcq-dst-address6-mask=64 pcq-src-address6-mask=64 pcq-total-limit=20000KiB
+add kind=pcq name=pcq0-up pcq-classifier=src-address pcq-dst-address6-mask=64 pcq-src-address6-mask=64 pcq-total-limit=20000KiB
+/queue tree
+add max-limit=17M name=Download1 packet-mark=Download1 parent=global priority=1 queue=pcq1-down
+add max-limit=17M name=Download2 packet-mark=Download2 parent=global priority=1 queue=pcq2-down
+add max-limit=25M name=Download3 packet-mark=Download3 parent=global priority=1 queue=pcq3-down
+add max-limit=5M name=Download4 packet-mark=Download4 parent=global priority=1 queue=pcq4-down
+add max-limit=1M name=Upload1 packet-mark=Upload1 parent=global priority=1 queue=pcq1-up
+add max-limit=1M name=Upload2 packet-mark=Upload2 parent=global priority=1 queue=pcq2-up
+add max-limit=2M name=Upload3 packet-mark=Upload3 parent=global priority=1 queue=pcq3-up
+add max-limit=2M name=Upload4 packet-mark=Upload4 parent=global priority=1 queue=pcq4-up
+add max-limit=13M name=Download0 packet-mark=Download0 parent=global priority=1 queue=pcq1-down
+add max-limit=1M name=Upload0 packet-mark=Upload0 parent=global priority=1 queue=pcq1-up
+/ip firewall mangle
+add action=mark-connection chain=input in-interface=WAN0-Movistar new-connection-mark=ISP0_conn
+add action=mark-connection chain=input in-interface=WAN1-Movistar new-connection-mark=ISP1_conn
+add action=mark-connection chain=input in-interface=WAN2-Movistar new-connection-mark=ISP2_conn
+add action=mark-connection chain=input in-interface=WAN3 new-connection-mark=ISP3_conn
+add action=mark-connection chain=input in-interface=WAN4 new-connection-mark=ISP4_conn
+add action=mark-routing chain=output connection-mark=ISP0_conn new-routing-mark=to_ISP0
+add action=mark-routing chain=output connection-mark=ISP1_conn new-routing-mark=to_ISP1
+add action=mark-routing chain=output connection-mark=ISP2_conn new-routing-mark=to_ISP2
+add action=mark-routing chain=output connection-mark=ISP3_conn new-routing-mark=to_ISP3
+add action=mark-routing chain=output connection-mark=ISP4_conn new-routing-mark=to_ISP4
+add action=mark-connection chain=prerouting comment=HTTP,HTTPS_TCP dst-port=80,443,8080,25 in-interface=LAN new-connection-mark=ISP0_conn passthrough=yes per-connection-classifier=both-addresses-and-ports:5/0 protocol=tcp
+add action=mark-connection chain=prerouting dst-port=80,443,8080,25 in-interface=LAN new-connection-mark=ISP1_conn passthrough=yes per-connection-classifier=both-addresses-and-ports:5/1 protocol=tcp
+add action=mark-connection chain=prerouting dst-port=80,443,8080,25 in-interface=LAN new-connection-mark=ISP2_conn passthrough=yes per-connection-classifier=both-addresses-and-ports:5/2 protocol=tcp
+add action=mark-connection chain=prerouting dst-port=80,443,8080,25 in-interface=LAN new-connection-mark=ISP3_conn passthrough=yes per-connection-classifier=both-addresses-and-ports:5/3 protocol=tcp
+add action=mark-connection chain=prerouting dst-port=80,443,8080,25 in-interface=LAN new-connection-mark=ISP3_conn passthrough=yes per-connection-classifier=both-addresses-and-ports:5/4 protocol=tcp
+add action=mark-connection chain=prerouting comment=HTTP,HTTPS_UDP dst-port=80,443,8080,25 in-interface=LAN new-connection-mark=ISP0_conn passthrough=yes per-connection-classifier=both-addresses-and-ports:5/0 protocol=udp
+add action=mark-connection chain=prerouting dst-port=80,443,8080,25 in-interface=LAN new-connection-mark=ISP1_conn passthrough=yes per-connection-classifier=both-addresses-and-ports:5/1 protocol=udp
+add action=mark-connection chain=prerouting dst-port=80,443,8080,25 in-interface=LAN new-connection-mark=ISP2_conn passthrough=yes per-connection-classifier=both-addresses-and-ports:5/2 protocol=udp
+add action=mark-connection chain=prerouting dst-port=80,443,8080,25 in-interface=LAN new-connection-mark=ISP3_conn passthrough=yes per-connection-classifier=both-addresses-and-ports:5/3 protocol=udp
+add action=mark-connection chain=prerouting dst-port=80,443,8080,25 in-interface=LAN new-connection-mark=ISP3_conn passthrough=yes per-connection-classifier=both-addresses-and-ports:5/4 protocol=udp
+add action=mark-connection chain=prerouting comment="STREAMING - JUEGOS,VOIP" dst-port=5060-5061 in-interface=LAN new-connection-mark=ISP4_conn passthrough=yes protocol=udp
+add action=mark-connection chain=prerouting dst-port=1863,5190,777 in-interface=LAN new-connection-mark=ISP4_conn passthrough=yes protocol=tcp
+add action=mark-connection chain=prerouting comment=Games dst-port=5340-5352,6000-6152,10001-10011,14009-14030,18901-18909 in-interface=LAN new-connection-mark=ISP4_conn passthrough=yes protocol=tcp
+add action=mark-connection chain=prerouting dst-port=39190,27780,29000,22100,10009,4300,15001,15002,7341,7451 in-interface=LAN new-connection-mark=ISP4_conn passthrough=yes protocol=tcp
+add action=mark-connection chain=prerouting dst-port=40000,9300,9400,9700,7342,8005-8010,37466,36567,8822 in-interface=LAN new-connection-mark=ISP4_conn passthrough=yes protocol=tcp
+add action=mark-connection chain=prerouting dst-port=47611,16666,20000,5105,29000,18901-18909,9015 in-interface=LAN new-connection-mark=ISP4_conn passthrough=yes protocol=tcp
+add action=mark-connection chain=prerouting dst-port=3074 in-interface=LAN new-connection-mark=ISP4_conn passthrough=yes protocol=tcp
+add action=mark-connection chain=prerouting dst-port=27005,27015 in-interface=LAN new-connection-mark=ISP4_conn passthrough=yes protocol=udp
+add action=mark-connection chain=prerouting dst-port=3074 in-interface=LAN new-connection-mark=ISP4_conn passthrough=yes protocol=udp
+add action=mark-connection chain=prerouting dst-port=14009-14030,42051-42052,40000-40050,13000-13080 in-interface=LAN new-connection-mark=ISP4_conn passthrough=yes protocol=udp
+add action=mark-connection chain=prerouting dst-port=27005-27020,13055,7800-7900,12060-12070 in-interface=LAN new-connection-mark=ISP4_conn passthrough=yes protocol=udp
+add action=mark-connection chain=prerouting dst-port=8005-8010,9068,1293,1479,9401,9600,30000 new-connection-mark=ISP4_conn passthrough=yes protocol=udp
+add action=mark-connection chain=prerouting dst-port=1025-1934,1936-4069,8081-8290,8293-11909,11911-65535 in-interface=LAN new-connection-mark=ISP4_conn protocol=udp
+add action=mark-connection chain=prerouting dst-port=1025-1934,1936-4069,8081-8290,8293-11909,11911-65535 in-interface=LAN new-connection-mark=ISP4_conn protocol=tcp
+add action=mark-connection chain=prerouting dst-port=9339,843 in-interface=LAN new-connection-mark=ISP4_conn protocol=tcp
+add action=mark-connection chain=prerouting dst-port=15001,1119,3724 in-interface=LAN new-connection-mark=ISP4_conn protocol=udp
+add action=mark-connection chain=prerouting dst-port=5000-5500 in-interface=LAN new-connection-mark=ISP4_conn protocol=udp
+add action=mark-connection chain=prerouting comment=***Dota2 dst-port=27014,27015,27016-27050,27028,27032,27034,27036,27037,27046-27060 in-interface=LAN new-connection-mark=\
+    ISP4_conn passthrough=yes protocol=tcp
+add action=mark-connection chain=prerouting dst-port=27000-27016,27018-27031,27032,27034,27036,27042,3478-4380,3005,3101,28960,27045-27060 in-interface=LAN new-connection-mark=\
+    ISP4_conn passthrough=yes protocol=udp
+add action=mark-connection chain=prerouting comment=***Wolfteam dst-port=30707-30724,40707,4071-8079 in-interface=LAN new-connection-mark=ISP4_conn passthrough=yes protocol=tcp
+add action=mark-connection chain=prerouting dst-port=4071-8079,40707-40718,30000,30001,20001 in-interface=LAN new-connection-mark=ISP4_conn passthrough=yes protocol=udp
+add action=mark-connection chain=prerouting comment=***Rakion dst-port=1100-1399,2300-2399,40706-40737,50817,8500 in-interface=LAN new-connection-mark=ISP4_conn passthrough=yes \
+    protocol=tcp
+add action=mark-connection chain=prerouting dst-port=1100-1399,2300-2399,40706-40737,50817,8500 in-interface=LAN new-connection-mark=ISP4_conn passthrough=yes protocol=udp
+add action=mark-routing chain=prerouting comment=BALANCE connection-mark=ISP0_conn in-interface=LAN new-routing-mark=to_ISP0
+add action=mark-routing chain=prerouting connection-mark=ISP1_conn in-interface=LAN new-routing-mark=to_ISP1
+add action=mark-routing chain=prerouting connection-mark=ISP2_conn in-interface=LAN new-routing-mark=to_ISP2
+add action=mark-routing chain=prerouting connection-mark=ISP3_conn in-interface=LAN new-routing-mark=to_ISP3
+add action=mark-routing chain=prerouting connection-mark=ISP4_conn in-interface=LAN new-routing-mark=to_ISP4
+add action=mark-packet chain=forward comment="***prioridad a paquetes que atravisan el ROUTHER" in-interface=LAN new-packet-mark=Upload0 out-interface=WAN0-Movistar passthrough=yes
+add action=mark-packet chain=forward in-interface=LAN new-packet-mark=Upload1 out-interface=WAN1-Movistar passthrough=yes
+add action=mark-packet chain=forward in-interface=LAN new-packet-mark=Upload2 out-interface=WAN2-Movistar passthrough=yes
+add action=mark-packet chain=forward in-interface=LAN new-packet-mark=Upload3 out-interface=WAN3 passthrough=yes
+add action=mark-packet chain=forward in-interface=LAN new-packet-mark=Upload4 out-interface=WAN4 passthrough=yes
+add action=mark-packet chain=forward in-interface=WAN0-Movistar new-packet-mark=Download0 out-interface=LAN passthrough=yes
+add action=mark-packet chain=forward in-interface=WAN1-Movistar new-packet-mark=Download1 out-interface=LAN passthrough=yes
+add action=mark-packet chain=forward in-interface=WAN2-Movistar new-packet-mark=Download2 out-interface=LAN passthrough=yes
+add action=mark-packet chain=forward in-interface=WAN3 new-packet-mark=Download3 out-interface=LAN passthrough=yes
+add action=mark-packet chain=forward in-interface=WAN4 new-packet-mark=Download4 out-interface=LAN passthrough=yes
+/ip firewall nat
+add action=masquerade chain=srcnat out-interface=WAN0-Movistar
+add action=masquerade chain=srcnat out-interface=WAN1-Movistar
+add action=masquerade chain=srcnat out-interface=WAN2-Movistar
+add action=masquerade chain=srcnat out-interface=WAN3
+add action=masquerade chain=srcnat out-interface=WAN4
+/ip route
+add distance=1 gateway=WAN0-Movistar routing-mark=to_ISP0
+add distance=1 gateway=WAN1-Movistar routing-mark=to_ISP1
+add distance=1 gateway=WAN2-Movistar routing-mark=to_ISP2
+add distance=1 gateway=192.168.3.1 routing-mark=to_ISP3
+add distance=1 gateway=192.168.0.1 routing-mark=to_ISP4
+add distance=1 gateway=192.168.0.1
+add distance=2 gateway=192.168.3.1
+add check-gateway=ping distance=3 gateway=WAN0-Movistar
+add check-gateway=ping distance=4 gateway=WAN1-Movistar
+add check-gateway=ping distance=5 gateway=WAN2-Movistar
