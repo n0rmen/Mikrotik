@@ -1,0 +1,781 @@
+# oct/12/2017 12:22:54 by RouterOS 6.37
+# software id = E683-L9G7
+#
+/interface bridge
+add mtu=1500 name=BrdLink protocol-mode=none
+add name=bridge1 protocol-mode=none
+
+
+/ip firewall layer7-protocol
+add name=www.deezer.com regexp="^.*(www.deezer.com).*\$"
+add name=www.spotify.com regexp="^.*(spotify).*\$"
+/ip pool
+add name=dhcp_pool1 ranges=192.168.6.2-192.168.6.254
+add name=dhcp_pool2 ranges=\
+    192.168.1.1-192.168.1.104,192.168.1.106-192.168.1.254
+/ip dhcp-server
+add address-pool=dhcp_pool1 disabled=no interface=bridge1 lease-time=1w3d \
+    name=dhcp1
+/ppp profile
+set *FFFFFFFE bridge=bridge1 bridge-port-priority=0x80 local-address=\
+    192.168.6.1 remote-address=dhcp_pool1
+/queue simple
+add disabled=yes max-limit=1M/2M name=midell target=192.168.6.44/32
+add max-limit=256k/1M name="manuel celu personal" target=192.168.6.101/32
+add disabled=yes max-limit=1M/1M name=\
+    "Router Wi-Fi - Contrase\F1a internet789" target=192.168.6.2/32
+add disabled=yes max-limit=4M/4M name="PC adrian " target=192.168.6.110/32
+add disabled=yes max-limit=1M/10M name=\
+    "AP epmp /5mhz / oktubre789 / 192.168.6.3" target=192.168.6.3/32
+add max-limit=1M/2M name=xperia target=192.168.6.102/32
+add disabled=yes max-limit=1M/2M name=queue1 target=192.168.6.44/32
+add max-limit=1M/2M name="Nano prueba elevate" target=192.168.6.5/32
+/queue type
+add kind=pcq name=Youtube pcq-classifier=dst-address pcq-rate=2M
+add kind=pcq name=Netflix pcq-classifier=dst-address pcq-rate=1M
+add kind=pcq name=WindowsUpdate pcq-classifier=dst-address pcq-rate=200k
+add kind=pcq name=Facebook pcq-classifier=dst-address
+set 13 kind=pcq pcq-classifier=dst-address,dst-port
+/queue simple
+add disabled=yes max-limit=0/1M name=SpeedtestDown packet-marks=\
+    ooklapacketsDN queue=default/default target=bridge1
+add comment=bis disabled=yes max-limit=0/1M name=SpeedtestUP packet-marks=\
+    ooklapacketsUP queue=default/default target=BrdLink
+/queue tree
+add name=Todo parent=global queue=default
+add name=Youtube packet-mark=youtubepacket parent=Todo priority=5 queue=\
+    Youtube
+add name=Netflix packet-mark=netflixpacket parent=Todo queue=default
+add name=WindowsUpdate packet-mark=wupdatepackets parent=Todo queue=default
+add name=facebook packet-mark=facebookpacket parent=Todo priority=2 queue=\
+    Facebook
+add name=prima packet-mark=spsprima parent=Todo queue=default
+add name=Otros packet-mark=otrospacket parent=Todo queue=default
+add name=whatsapp parent=Todo priority=1 queue=default
+/interface bridge port
+add bridge=BrdLink interface=ether2
+add bridge=BrdLink interface=ether3
+add bridge=bridge1 interface=ether5
+add bridge=bridge1 interface=ether4
+/interface bridge settings
+set allow-fast-path=no use-ip-firewall=yes
+/interface pptp-server server
+set authentication=pap,chap,mschap1,mschap2 enabled=yes
+/ip address
+add address=192.168.3.252/24 interface=BrdLink network=192.168.3.0
+add address=192.168.6.1/24 interface=bridge1 network=192.168.6.0
+add address=10.20.10.252/24 interface=BrdLink network=10.20.10.0
+add address=192.168.100.121/24 interface=BrdLink network=192.168.100.0
+add address=10.1.1.252/24 interface=BrdLink network=10.1.1.0
+/ip dhcp-client
+add default-route-distance=15 dhcp-options=hostname,clientid disabled=no \
+    interface=BrdLink use-peer-ntp=no
+/ip dhcp-server lease
+add address=192.168.6.110 client-id=1:20:89:84:26:51:31 comment=\
+    "allinone adrian " mac-address=20:89:84:26:51:31 server=dhcp1
+add address=192.168.6.103 always-broadcast=yes client-id=1:94:39:e5:5:4:3c \
+    comment="lenovo notebook eze wireless" mac-address=94:39:E5:05:04:3C \
+    server=dhcp1
+add address=192.168.6.102 always-broadcast=yes client-id=1:68:76:4f:5:3e:3a \
+    comment="xperia zl EZE" mac-address=68:76:4F:05:3E:3A server=dhcp1
+add address=192.168.6.101 client-id=1:84:10:d:42:1b:9f comment=\
+    "cel manu personal" mac-address=84:10:0D:42:1B:9F server=dhcp1
+add address=192.168.6.111 client-id=1:18:cf:5e:76:7b:8a comment=\
+    "netbook calle manuel camara giratoria" mac-address=18:CF:5E:76:7B:8A \
+    server=dhcp1
+add address=192.168.6.100 client-id=1:60:8f:5c:17:4b:f6 comment=\
+    "cel empresa adrian (spider-phone)" mac-address=60:8F:5C:17:4B:F6 server=\
+    dhcp1
+add address=192.168.6.99 client-id=1:50:c8:e5:74:59:69 comment=\
+    "cel personal adrian" mac-address=50:C8:E5:74:59:69 server=dhcp1
+add address=192.168.6.95 client-id=1:b8:ee:65:a4:87:c9 comment="netbook eze " \
+    mac-address=B8:EE:65:A4:87:C9 server=dhcp1
+add address=192.168.6.90 always-broadcast=yes client-id=1:f0:de:f1:87:c7:80 \
+    comment="lenovo notebook eze por ethernet" mac-address=F0:DE:F1:87:C7:80 \
+    server=dhcp1
+add address=192.168.6.97 comment=SERVER-DEPO mac-address=D0:50:99:81:0E:94 \
+    server=dhcp1
+add address=192.168.6.42 client-id=1:0:26:b6:82:a9:66 comment=\
+    "Netbook Roja Samsung Iplus" mac-address=00:26:B6:82:A9:66 server=dhcp1
+add address=192.168.6.39 always-broadcast=yes client-id=1:84:89:ad:cc:48:7c \
+    comment="iphone juan" mac-address=84:89:AD:CC:48:7C server=dhcp1
+add address=192.168.6.36 always-broadcast=yes comment=\
+    "lg kite 4 adrian-personal" mac-address=5C:AF:06:0A:F0:22 server=dhcp1
+add address=192.168.6.44 comment="dell kali eze" insert-queue-before=bottom \
+    mac-address=64:27:37:F1:96:BF rate-limit=2M/2M server=dhcp1
+add address=192.168.6.34 client-id=1:cc:af:78:6e:67:b comment=\
+    "Silvina pc- netbook gris de juan " mac-address=CC:AF:78:6E:67:0B server=\
+    dhcp1
+add address=192.168.6.33 client-id=1:0:4:56:b9:9c:52 comment="primer e500" \
+    mac-address=00:04:56:B9:9C:52 server=dhcp1
+add address=192.168.6.32 client-id=1:0:4:56:b9:52:94 comment="segundo e500" \
+    mac-address=00:04:56:B9:52:94 server=dhcp1
+add address=192.168.6.21 client-id=1:0:b:82:36:91:e0 mac-address=\
+    00:0B:82:36:91:E0 server=dhcp1
+add address=192.168.6.28 client-id=1:0:b:82:ad:2:45 mac-address=\
+    00:0B:82:AD:02:45 server=dhcp1
+add address=192.168.6.16 client-id=1:0:4:56:b9:9b:a8 mac-address=\
+    00:04:56:B9:9B:A8 server=dhcp1
+add address=192.168.6.31 client-id=1:0:b:82:ad:2:53 mac-address=\
+    00:0B:82:AD:02:53 server=dhcp1
+/ip dhcp-server network
+add address=192.168.1.0/24 gateway=192.168.1.105
+add address=192.168.6.0/24 dns-server=\
+    8.8.8.8,8.8.4.4,208.67.220.220,208.67.222.222 gateway=192.168.6.1
+/ip dns
+set servers=8.8.8.8,8.8.4.4
+/ip firewall address-list
+add address=youtu.be list=Youtube
+add address=youtube.com list=Youtube
+add address=8.8.8.8 list=IP-PERMITIDAS
+add address=8.8.4.4 list=IP-PERMITIDAS
+add address=208.67.222.222 list=IP-PERMITIDAS
+add address=208.67.220.220 list=IP-PERMITIDAS
+add address=168.181.185.90 list=IP-PERMITIDAS
+add address=windowsupdate.microsoft.com list=microsoft
+add address=update.microsoft.com list=microsoft
+add address=windowsupdate.com list=microsoft
+add address=download.windowsupdate.com list=microsoft
+add address=microsoft.com list=microsoft
+add address=wustat.windows.com list=microsoft
+add address=ntservicepack.microsoft.com list=microsoft
+add address=stats.microsoft.com list=microsoft
+add address=whatsapp.com list=whatsapp
+add address=208.43.122.128/27 list=whatsapp
+add address=31.13.64.51 list=whatsapp
+add address=31.13.65.49 list=whatsapp
+add address=31.13.66.49 list=whatsapp
+add address=31.13.67.51 list=whatsapp
+add address=31.13.68.52 list=whatsapp
+add address=31.13.69.240 list=whatsapp
+add address=31.13.70.49 list=whatsapp
+add address=31.13.71.49 list=whatsapp
+add address=31.13.72.52 list=whatsapp
+add address=31.13.73.49 list=whatsapp
+add address=31.13.74.49 list=whatsapp
+add address=31.13.75.52 list=whatsapp
+add address=31.13.76.81 list=whatsapp
+add address=31.13.77.49 list=whatsapp
+add address=31.13.78.53 list=whatsapp
+add address=31.13.80.53 list=whatsapp
+add address=31.13.81.53 list=whatsapp
+add address=31.13.82.51 list=whatsapp
+add address=31.13.83.51 list=whatsapp
+add address=31.13.84.51 list=whatsapp
+add address=31.13.85.51 list=whatsapp
+add address=31.13.86.51 list=whatsapp
+add address=31.13.87.51 list=whatsapp
+add address=31.13.88.49 list=whatsapp
+add address=31.13.90.51 list=whatsapp
+add address=31.13.91.51 list=whatsapp
+add address=31.13.92.52 list=whatsapp
+add address=31.13.93.51 list=whatsapp
+add address=31.13.94.52 list=whatsapp
+add address=31.13.95.63 list=whatsapp
+add address=50.22.198.204/30 list=whatsapp
+add address=50.22.210.32/30 list=whatsapp
+add address=50.22.210.128/27 list=whatsapp
+add address=50.22.225.64/27 list=whatsapp
+add address=50.22.235.248/30 list=whatsapp
+add address=50.22.240.160/27 list=whatsapp
+add address=50.23.90.128/27 list=whatsapp
+add address=50.97.57.128/27 list=whatsapp
+add address=75.126.39.32/27 list=whatsapp
+add address=108.168.171.224/27 list=whatsapp
+add address=108.168.174.0/27 list=whatsapp
+add address=108.168.176.192/26 list=whatsapp
+add address=108.168.177.0/27 list=whatsapp
+add address=108.168.180.96/27 list=whatsapp
+add address=108.168.254.65 list=whatsapp
+add address=108.168.255.224 list=whatsapp
+add address=108.168.255.227 list=whatsapp
+add address=157.240.0.53 list=whatsapp
+add address=157.240.1.53 list=whatsapp
+add address=157.240.2.53 list=whatsapp
+add address=157.240.3.53 list=whatsapp
+add address=157.240.6.53 list=whatsapp
+add address=157.240.7.54 list=whatsapp
+add address=157.240.8.53 list=whatsapp
+add address=157.240.9.53 list=whatsapp
+add address=157.240.10.53 list=whatsapp
+add address=157.240.11.53 list=whatsapp
+add address=157.240.12.53 list=whatsapp
+add address=157.240.13.54 list=whatsapp
+add address=158.85.0.96/27 list=whatsapp
+add address=158.85.5.192/27 list=whatsapp
+add address=158.85.46.128/27 list=whatsapp
+add address=158.85.48.224/27 list=whatsapp
+add address=158.85.58.0/25 list=whatsapp
+add address=158.85.61.192/27 list=whatsapp
+add address=158.85.224.160/27 list=whatsapp
+add address=158.85.233.32/27 list=whatsapp
+add address=158.85.249.128/27 list=whatsapp
+add address=158.85.254.64/27 list=whatsapp
+add address=169.44.23.192/27 list=whatsapp
+add address=169.44.36.0/25 list=whatsapp
+add address=169.44.57.64/27 list=whatsapp
+add address=169.44.58.64/27 list=whatsapp
+add address=169.44.80.0/26 list=whatsapp
+add address=169.44.82.96/27 list=whatsapp
+add address=169.44.82.128/27 list=whatsapp
+add address=169.44.82.192/26 list=whatsapp
+add address=169.44.83.0/26 list=whatsapp
+add address=169.44.83.96/27 list=whatsapp
+add address=169.44.83.128/27 list=whatsapp
+add address=169.44.83.192/26 list=whatsapp
+add address=169.44.84.0/24 list=whatsapp
+add address=169.44.85.64/27 list=whatsapp
+add address=169.44.87.160/27 list=whatsapp
+add address=169.44.167.0/27 list=whatsapp
+add address=169.45.71.32/27 list=whatsapp
+add address=169.45.71.96/27 list=whatsapp
+add address=169.45.87.128/26 list=whatsapp
+add address=169.45.169.192/27 list=whatsapp
+add address=169.45.182.96/27 list=whatsapp
+add address=169.45.210.64/27 list=whatsapp
+add address=169.45.214.224/27 list=whatsapp
+add address=169.45.219.224/27 list=whatsapp
+add address=169.45.237.192/27 list=whatsapp
+add address=169.45.238.32/27 list=whatsapp
+add address=169.45.248.96/27 list=whatsapp
+add address=169.45.248.160/27 list=whatsapp
+add address=169.46.52.224/27 list=whatsapp
+add address=169.46.111.144/28 list=whatsapp
+add address=169.47.5.192/26 list=whatsapp
+add address=169.47.6.64/27 list=whatsapp
+add address=169.47.33.128/27 list=whatsapp
+add address=169.47.35.32/27 list=whatsapp
+add address=169.47.37.128/27 list=whatsapp
+add address=169.47.40.128/27 list=whatsapp
+add address=169.47.42.96/27 list=whatsapp
+add address=169.47.42.160/27 list=whatsapp
+add address=169.47.42.192/26 list=whatsapp
+add address=169.47.47.160/27 list=whatsapp
+add address=169.47.130.96/27 list=whatsapp
+add address=169.47.192.192/27 list=whatsapp
+add address=169.47.194.128/27 list=whatsapp
+add address=169.47.198.128/27 list=whatsapp
+add address=169.47.212.160/27 list=whatsapp
+add address=169.53.29.128/27 list=whatsapp
+add address=169.53.48.32/27 list=whatsapp
+add address=169.53.71.224/27 list=whatsapp
+add address=169.53.81.64/27 list=whatsapp
+add address=169.53.250.128/26 list=whatsapp
+add address=169.53.252.64/27 list=whatsapp
+add address=169.53.255.64/27 list=whatsapp
+add address=169.54.2.160/27 list=whatsapp
+add address=169.54.44.224/27 list=whatsapp
+add address=169.54.51.32/27 list=whatsapp
+add address=169.54.55.192/27 list=whatsapp
+add address=169.54.193.160/27 list=whatsapp
+add address=169.54.210.0/27 list=whatsapp
+add address=169.54.222.128/27 list=whatsapp
+add address=169.55.67.224/27 list=whatsapp
+add address=169.55.69.128/26 list=whatsapp
+add address=169.55.74.32/27 list=whatsapp
+add address=169.55.75.96/27 list=whatsapp
+add address=169.55.100.160/27 list=whatsapp
+add address=169.55.126.64/26 list=whatsapp
+add address=169.55.210.96/27 list=whatsapp
+add address=169.55.235.160/27 list=whatsapp
+add address=173.192.162.32/27 list=whatsapp
+add address=173.192.219.128/27 list=whatsapp
+add address=173.192.222.160/27 list=whatsapp
+add address=173.192.231.32/27 list=whatsapp
+add address=173.193.205.0/27 list=whatsapp
+add address=173.193.230.96/27 list=whatsapp
+add address=173.193.230.128/27 list=whatsapp
+add address=173.193.230.192/27 list=whatsapp
+add address=173.193.239.0/27 list=whatsapp
+add address=174.36.208.128/27 list=whatsapp
+add address=174.36.210.32/27 list=whatsapp
+add address=174.36.251.192/27 list=whatsapp
+add address=174.37.199.192/27 list=whatsapp
+add address=174.37.217.64/27 list=whatsapp
+add address=174.37.243.64/27 list=whatsapp
+add address=174.37.251.0/27 list=whatsapp
+add address=179.60.192.51 list=whatsapp
+add address=179.60.195.51 list=whatsapp
+add address=184.173.136.64/27 list=whatsapp
+add address=184.173.147.32/27 list=whatsapp
+add address=184.173.161.64 list=whatsapp
+add address=184.173.173.116 list=whatsapp
+add address=184.173.179.32/27 list=whatsapp
+add address=185.60.216.53 list=whatsapp
+add address=185.60.218.53 list=whatsapp
+add address=185.60.219.53 list=whatsapp
+add address=192.155.212.192/27 list=whatsapp
+add address=198.11.193.182/31 list=whatsapp
+add address=198.11.251.32/27 list=whatsapp
+add address=198.23.80.0/27 list=whatsapp
+add address=208.43.115.192/27 list=whatsapp
+add address=208.43.117.79 list=whatsapp
+add address=download.windowsupdate.com.edgesuite.net list=microsoft
+add address=sftp.fibertel.com.ar list=sftp.fibertel.com.ar
+add address=65.53.0.0/16 list=microsoft
+add address=65.54.0.0/24 list=microsoft
+add address=65.54.1.0/24 list=microsoft
+add address=65.54.2.0/24 list=microsoft
+add address=65.55.28.0/23 list=microsoft
+add address=65.55.28.0/22 list=microsoft
+add address=65.55.188.0/24 list=microsoft
+add address=70.42.230.0/23 list=microsoft
+add address=104.44.112.0/24 list=microsoft
+add address=131.107.0.0/20 list=microsoft
+add address=131.107.217.0/24 list=microsoft
+add address=131.107.0.0/16 list=microsoft
+add address=157.54.0.0/16 list=microsoft
+add address=157.57.0.0/16 list=microsoft
+add address=157.58.192.0/19 list=microsoft
+add address=157.58.248.0/23 list=microsoft
+add address=157.58.0.0/16 list=microsoft
+add address=157.59.0.0/16 list=microsoft
+add address=157.60.0.0/16 list=microsoft
+add address=167.220.8.0/24 list=microsoft
+add address=167.220.9.0/24 list=microsoft
+add address=167.220.10.0/24 list=microsoft
+add address=167.220.24.0/22 list=microsoft
+add address=167.220.16.0/20 list=microsoft
+add address=167.220.40.0/21 list=microsoft
+add address=167.220.48.0/21 list=microsoft
+add address=167.220.64.0/19 list=microsoft
+add address=167.220.0.0/17 list=microsoft
+add address=167.220.148.0/22 list=microsoft
+add address=167.220.152.0/24 list=microsoft
+add address=167.220.236.0/22 list=microsoft
+add address=167.220.248.0/21 list=microsoft
+add address=198.105.232.0/22 list=microsoft
+add address=198.180.95.0/24 list=microsoft
+add address=199.2.137.0/24 list=microsoft
+add address=199.242.48.0/22 list=microsoft
+add address=204.182.144.0/24 list=microsoft
+add address=204.255.244.0/23 list=microsoft
+add address=167.220.192.0/22 list=microsoft
+add address=167.220.196.0/22 list=microsoft
+add address=167.220.200.0/24 list=microsoft
+add address=167.220.201.0/24 list=microsoft
+add address=194.69.96.0/22 list=microsoft
+add address=194.69.100.0/22 list=microsoft
+add address=194.69.126.0/23 list=microsoft
+add address=13.107.3.0/24 list=microsoft
+add address=13.107.4.0/24 list=microsoft
+add address=13.107.5.0/24 list=microsoft
+add address=13.107.6.0/24 list=microsoft
+add address=13.107.7.0/24 list=microsoft
+add address=13.107.9.0/24 list=microsoft
+add address=13.107.12.0/24 list=microsoft
+add address=13.107.13.0/24 list=microsoft
+add address=13.107.15.0/24 list=microsoft
+add address=13.107.16.0/24 list=microsoft
+add address=13.107.18.0/24 list=microsoft
+add address=13.107.21.0/24 list=microsoft
+add address=13.107.22.0/24 list=microsoft
+add address=13.107.24.0/24 list=microsoft
+add address=13.107.44.0/24 list=microsoft
+add address=13.107.58.0/24 list=microsoft
+add address=13.107.160.0/24 list=microsoft
+add address=40.90.4.0/24 list=microsoft
+add address=64.4.48.0/24 list=microsoft
+add address=65.54.192.0/24 list=microsoft
+add address=65.54.193.0/24 list=microsoft
+add address=65.54.195.0/24 list=microsoft
+add address=65.54.196.0/24 list=microsoft
+add address=65.54.197.0/24 list=microsoft
+add address=65.54.198.0/24 list=microsoft
+add address=65.54.199.0/24 list=microsoft
+add address=65.54.200.0/24 list=microsoft
+add address=65.54.201.0/24 list=microsoft
+add address=65.54.202.0/24 list=microsoft
+add address=65.54.203.0/24 list=microsoft
+add address=65.54.207.0/24 list=microsoft
+add address=65.54.208.0/24 list=microsoft
+add address=65.54.210.0/24 list=microsoft
+add address=65.54.211.0/24 list=microsoft
+add address=65.54.213.0/24 list=microsoft
+add address=65.54.215.0/24 list=microsoft
+add address=65.54.216.0/24 list=microsoft
+add address=65.54.219.0/24 list=microsoft
+add address=65.54.222.0/24 list=microsoft
+add address=65.54.223.0/24 list=microsoft
+add address=94.245.84.0/24 list=microsoft
+add address=104.44.66.0/24 list=microsoft
+add address=104.44.67.0/24 list=microsoft
+add address=104.44.68.0/24 list=microsoft
+add address=104.44.69.0/24 list=microsoft
+add address=104.44.75.0/24 list=microsoft
+add address=131.253.21.0/24 list=microsoft
+add address=204.14.180.0/24 list=microsoft
+add address=204.79.197.0/24 list=microsoft
+add address=131.253.72.0/22 list=microsoft
+add address=131.253.80.0/20 list=microsoft
+add address=131.253.112.0/21 list=microsoft
+add address=131.253.120.0/22 list=microsoft
+add address=167.220.232.0/22 list=microsoft
+add address=103.25.156.0/24 list=microsoft
+add address=103.36.96.0/22 list=microsoft
+add address=103.255.140.0/23 list=microsoft
+add address=103.255.140.0/22 list=microsoft
+add address=111.221.28.0/24 list=microsoft
+add address=202.89.232.0/21 list=microsoft
+add address=167.220.28.0/23 list=microsoft
+add address=167.220.237.0/24 list=microsoft
+add address=13.64.0.0/11 list=microsoft
+add address=13.107.20.0/24 list=microsoft
+add address=13.104.0.0/14 list=microsoft
+add address=23.96.0.0/14 list=microsoft
+add address=23.100.0.0/15 list=microsoft
+add address=23.102.0.0/16 list=microsoft
+add address=23.103.64.0/18 list=microsoft
+add address=23.103.128.0/17 list=microsoft
+add address=40.64.0.0/10 list=microsoft
+add address=51.10.0.0/15 list=microsoft
+add address=51.12.0.0/15 list=microsoft
+add address=51.18.0.0/16 list=microsoft
+add address=51.51.0.0/16 list=microsoft
+add address=51.53.0.0/16 list=microsoft
+add address=51.103.0.0/16 list=microsoft
+add address=51.104.0.0/15 list=microsoft
+add address=51.107.0.0/16 list=microsoft
+add address=51.116.0.0/16 list=microsoft
+add address=51.120.0.0/16 list=microsoft
+add address=51.124.0.0/16 list=microsoft
+add address=51.132.0.0/16 list=microsoft
+add address=51.136.0.0/15 list=microsoft
+add address=51.138.0.0/16 list=microsoft
+add address=51.140.0.0/14 list=microsoft
+add address=51.144.0.0/15 list=microsoft
+add address=52.96.0.0/12 list=microsoft
+add address=52.112.0.0/14 list=microsoft
+add address=52.120.0.0/14 list=microsoft
+add address=52.125.0.0/16 list=microsoft
+add address=52.126.0.0/15 list=microsoft
+add address=52.130.0.0/15 list=microsoft
+add address=52.132.0.0/14 list=microsoft
+add address=52.136.0.0/13 list=microsoft
+add address=52.145.0.0/16 list=microsoft
+add address=52.146.0.0/15 list=microsoft
+add address=52.148.0.0/14 list=microsoft
+add address=52.152.0.0/13 list=microsoft
+add address=52.160.0.0/11 list=microsoft
+add address=52.224.0.0/11 list=microsoft
+add address=65.55.44.0/24 list=microsoft
+add address=65.55.117.0/24 list=microsoft
+add address=65.52.0.0/14 list=microsoft
+add address=66.119.144.0/20 list=microsoft
+add address=70.37.0.0/17 list=microsoft
+add address=70.37.128.0/18 list=microsoft
+add address=94.245.64.0/18 list=microsoft
+add address=104.40.0.0/13 list=microsoft
+add address=104.146.0.0/19 list=microsoft
+add address=104.146.128.0/17 list=microsoft
+add address=104.208.0.0/13 list=microsoft
+add address=111.221.16.0/20 list=microsoft
+add address=111.221.64.0/18 list=microsoft
+add address=131.253.1.0/24 list=microsoft
+add address=131.253.5.0/24 list=microsoft
+add address=131.253.6.0/24 list=microsoft
+add address=131.253.8.0/24 list=microsoft
+add address=131.253.12.0/22 list=microsoft
+add address=131.253.18.0/24 list=microsoft
+add address=131.253.24.0/21 list=microsoft
+add address=131.253.33.0/24 list=microsoft
+add address=131.253.32.0/20 list=microsoft
+add address=131.253.61.0/24 list=microsoft
+add address=131.253.62.0/23 list=microsoft
+add address=131.253.128.0/17 list=microsoft
+add address=132.245.0.0/16 list=microsoft
+add address=134.170.0.0/16 list=microsoft
+add address=137.116.0.0/15 list=microsoft
+add address=137.135.0.0/16 list=microsoft
+add address=137.135.128.0/17 list=microsoft
+add address=138.91.0.0/16 list=microsoft
+add address=138.196.0.0/16 list=microsoft
+add address=146.147.0.0/16 list=microsoft
+add address=150.171.0.0/16 list=microsoft
+add address=157.55.0.0/16 list=microsoft
+add address=157.56.0.0/16 list=microsoft
+add address=157.60.23.0/24 list=microsoft
+add address=157.60.31.0/24 list=microsoft
+add address=167.220.240.0/22 list=microsoft
+add address=168.61.0.0/16 list=microsoft
+add address=168.62.0.0/15 list=microsoft
+add address=191.232.0.0/13 list=microsoft
+add address=192.48.225.0/24 list=microsoft
+add address=192.84.159.0/24 list=microsoft
+add address=192.84.160.0/23 list=microsoft
+add address=192.197.157.0/24 list=microsoft
+add address=193.149.64.0/19 list=microsoft
+add address=193.221.113.0/24 list=microsoft
+add address=198.49.8.0/24 list=microsoft
+add address=198.200.130.0/24 list=microsoft
+add address=198.206.164.0/24 list=microsoft
+add address=199.30.16.0/20 list=microsoft
+add address=199.60.28.0/24 list=microsoft
+add address=199.74.210.0/24 list=microsoft
+add address=199.103.90.0/23 list=microsoft
+add address=199.103.122.0/24 list=microsoft
+add address=199.242.48.0/21 list=microsoft
+add address=202.89.224.0/21 list=microsoft
+add address=204.79.135.0/24 list=microsoft
+add address=204.79.179.0/24 list=microsoft
+add address=204.79.195.0/24 list=microsoft
+add address=204.79.252.0/24 list=microsoft
+add address=204.95.96.0/20 list=microsoft
+add address=204.152.140.0/23 list=microsoft
+add address=206.138.168.0/21 list=microsoft
+add address=206.191.224.0/19 list=microsoft
+add address=207.46.0.0/19 list=microsoft
+add address=207.46.33.0/24 list=microsoft
+add address=207.46.34.0/23 list=microsoft
+add address=207.46.36.0/22 list=microsoft
+add address=207.46.40.0/21 list=microsoft
+add address=207.46.48.0/20 list=microsoft
+add address=207.46.98.0/24 list=microsoft
+add address=207.46.64.0/18 list=microsoft
+add address=207.46.128.0/17 list=microsoft
+add address=207.68.128.0/18 list=microsoft
+add address=207.82.250.0/23 list=microsoft
+add address=208.68.136.0/21 list=microsoft
+add address=208.76.45.0/24 list=microsoft
+add address=208.76.46.0/24 list=microsoft
+add address=208.84.0.0/24 list=microsoft
+add address=208.84.1.0/24 list=microsoft
+add address=208.84.2.0/24 list=microsoft
+add address=208.84.3.0/24 list=microsoft
+add address=209.1.112.0/23 list=microsoft
+add address=209.185.128.0/22 list=microsoft
+add address=209.185.240.0/22 list=microsoft
+add address=209.240.192.0/19 list=microsoft
+add address=213.199.128.0/18 list=microsoft
+add address=216.32.180.0/22 list=microsoft
+add address=216.32.240.0/22 list=microsoft
+add address=216.33.240.0/22 list=microsoft
+add address=64.41.193.0/24 list=microsoft
+add address=65.55.112.0/24 list=microsoft
+add address=65.55.171.0/24 list=microsoft
+add address=65.221.5.0/24 list=microsoft
+add address=204.176.46.0/24 list=microsoft
+add address=209.1.15.0/24 list=microsoft
+add address=216.32.180.0/24 list=microsoft
+add address=216.34.51.0/24 list=microsoft
+add address=131.253.16.0/23 list=microsoft
+add address=131.253.22.0/23 list=microsoft
+add address=157.58.2.0/23 list=microsoft
+add address=194.69.104.0/23 list=microsoft
+add address=191.234.96.0/23 list=microsoft
+add address=191.234.98.0/23 list=microsoft
+add address=40.72.0.0/17 list=microsoft
+add address=40.72.0.0/16 list=microsoft
+add address=40.72.128.0/17 list=microsoft
+add address=40.125.128.0/17 list=microsoft
+add address=40.126.64.0/18 list=microsoft
+add address=42.159.0.0/18 list=microsoft
+add address=42.159.64.0/18 list=microsoft
+add address=42.159.128.0/18 list=microsoft
+add address=42.159.0.0/16 list=microsoft
+add address=42.159.192.0/18 list=microsoft
+add address=103.9.8.0/23 list=microsoft
+add address=103.9.8.0/22 list=microsoft
+add address=139.217.0.0/17 list=microsoft
+add address=139.217.0.0/16 list=microsoft
+add address=139.217.128.0/17 list=microsoft
+add address=139.219.0.0/17 list=microsoft
+add address=139.219.0.0/16 list=microsoft
+add address=139.219.128.0/17 list=microsoft
+add address=167.220.244.0/22 list=microsoft
+add address=192.92.214.0/24 list=microsoft
+add address=64.4.0.0/18 list=microsoft
+add address=40.64.0.0/10 list=skype
+add address=23.96.0.0/14 list=skype
+add address=64.4.0.0/18 list=skype
+add address=65.52.0.0/14 list=skype
+add address=157.55.0.0/16 list=skype
+add address=204.15.20.0/22 list=PoolFacebook
+add address=69.63.176.0/20 list=PoolFacebook
+add address=66.220.144.0/20 list=PoolFacebook
+add address=66.220.144.0/21 list=PoolFacebook
+add address=69.63.184.0/21 list=PoolFacebook
+add address=69.63.176.0/21 list=PoolFacebook
+add address=74.119.76.0/22 list=PoolFacebook
+add address=69.171.255.0/24 list=PoolFacebook
+add address=173.252.64.0/18 list=PoolFacebook
+add address=69.171.224.0/19 list=PoolFacebook
+add address=69.171.224.0/20 list=PoolFacebook
+add address=103.4.96.0/22 list=PoolFacebook
+add address=69.63.176.0/24 list=PoolFacebook
+add address=173.252.64.0/19 list=PoolFacebook
+add address=173.252.70.0/24 list=PoolFacebook
+add address=31.13.64.0/18 list=PoolFacebook
+add address=31.13.24.0/21 list=PoolFacebook
+add address=66.220.152.0/21 list=PoolFacebook
+add address=66.220.159.0/24 list=PoolFacebook
+add address=69.171.239.0/24 list=PoolFacebook
+add address=69.171.240.0/20 list=PoolFacebook
+add address=31.13.64.0/19 list=PoolFacebook
+add address=31.13.64.0/24 list=PoolFacebook
+add address=31.13.65.0/24 list=PoolFacebook
+add address=31.13.67.0/24 list=PoolFacebook
+add address=31.13.68.0/24 list=PoolFacebook
+add address=31.13.69.0/24 list=PoolFacebook
+add address=31.13.70.0/24 list=PoolFacebook
+add address=31.13.71.0/24 list=PoolFacebook
+add address=31.13.72.0/24 list=PoolFacebook
+add address=31.13.73.0/24 list=PoolFacebook
+add address=31.13.74.0/24 list=PoolFacebook
+add address=31.13.75.0/24 list=PoolFacebook
+add address=31.13.76.0/24 list=PoolFacebook
+add address=31.13.77.0/24 list=PoolFacebook
+add address=31.13.96.0/19 list=PoolFacebook
+add address=31.13.66.0/24 list=PoolFacebook
+add address=173.252.96.0/19 list=PoolFacebook
+add address=69.63.178.0/24 list=PoolFacebook
+add address=31.13.78.0/24 list=PoolFacebook
+add address=31.13.79.0/24 list=PoolFacebook
+add address=31.13.80.0/24 list=PoolFacebook
+add address=31.13.82.0/24 list=PoolFacebook
+add address=31.13.83.0/24 list=PoolFacebook
+add address=31.13.84.0/24 list=PoolFacebook
+add address=31.13.85.0/24 list=PoolFacebook
+add address=31.13.86.0/24 list=PoolFacebook
+add address=31.13.87.0/24 list=PoolFacebook
+add address=31.13.88.0/24 list=PoolFacebook
+add address=31.13.89.0/24 list=PoolFacebook
+add address=31.13.90.0/24 list=PoolFacebook
+add address=31.13.91.0/24 list=PoolFacebook
+add address=31.13.92.0/24 list=PoolFacebook
+add address=31.13.93.0/24 list=PoolFacebook
+add address=31.13.94.0/24 list=PoolFacebook
+add address=31.13.95.0/24 list=PoolFacebook
+add address=69.171.253.0/24 list=PoolFacebook
+add address=69.63.186.0/24 list=PoolFacebook
+add address=31.13.81.0/24 list=PoolFacebook
+add address=179.60.192.0/22 list=PoolFacebook
+add address=179.60.192.0/24 list=PoolFacebook
+add address=179.60.193.0/24 list=PoolFacebook
+add address=179.60.194.0/24 list=PoolFacebook
+add address=179.60.195.0/24 list=PoolFacebook
+add address=185.60.216.0/22 list=PoolFacebook
+add address=45.64.40.0/22 list=PoolFacebook
+add address=185.60.216.0/24 list=PoolFacebook
+add address=185.60.217.0/24 list=PoolFacebook
+add address=185.60.218.0/24 list=PoolFacebook
+add address=185.60.219.0/24 list=PoolFacebook
+add address=129.134.0.0/16 list=PoolFacebook
+add address=157.240.0.0/16 list=PoolFacebook
+add address=157.240.8.0/24 list=PoolFacebook
+add address=157.240.0.0/24 list=PoolFacebook
+add address=157.240.1.0/24 list=PoolFacebook
+add address=157.240.3.0/24 list=PoolFacebook
+add address=157.240.4.0/24 list=PoolFacebook
+add address=157.240.5.0/24 list=PoolFacebook
+add address=157.240.6.0/24 list=PoolFacebook
+add address=157.240.7.0/24 list=PoolFacebook
+add address=157.240.9.0/24 list=PoolFacebook
+add address=157.240.10.0/24 list=PoolFacebook
+add address=192.168.6.103 disabled=yes list=salenporadsl
+/ip firewall filter
+add action=drop chain=forward content=spotify protocol=udp
+/ip firewall mangle
+add action=mark-connection chain=prerouting comment=>>RDP dst-port=3389 \
+    in-interface=bridge1 new-connection-mark=rdpconn passthrough=yes \
+    protocol=tcp
+add action=mark-packet chain=prerouting connection-mark=rdpconn \
+    new-packet-mark=rdppacketDN passthrough=no
+add action=mark-connection chain=prerouting comment=>>Facebook \
+    dst-address-list=PoolFacebook new-connection-mark=facebookconn \
+    passthrough=yes port=443 protocol=tcp
+add action=mark-packet chain=prerouting connection-mark=facebookconn \
+    new-packet-mark=facebookpacket passthrough=no
+add action=add-src-to-address-list address-list=ooklaips \
+    address-list-timeout=10m chain=prerouting comment=">>OOKLA -SPEEDTEST" \
+    content=ABCDEFGHIJABCDEFGHIJABCDEFGHIJ
+add action=mark-connection chain=postrouting dst-address-list=ooklaips \
+    new-connection-mark=ooklaconnUP out-interface=BrdLink passthrough=yes
+add action=mark-connection chain=prerouting new-connection-mark=ooklaconnDN \
+    passthrough=yes src-address-list=ooklaips
+add action=mark-packet chain=prerouting connection-mark=ooklaconnDN \
+    new-packet-mark=ooklapacketsDN passthrough=no
+add action=mark-packet chain=prerouting connection-mark=ooklaconnUP \
+    new-packet-mark=ooklapacketsUP passthrough=no
+add action=mark-connection chain=prerouting comment=>>YOUTUBE content=cdn \
+    new-connection-mark=youtubeconn passthrough=yes port=443 protocol=udp
+add action=mark-packet chain=prerouting connection-mark=youtubeconn \
+    new-packet-mark=youtubepacketdn passthrough=no
+add action=mark-connection chain=prerouting comment=">>NETFLIX -VIDEO" \
+    content=nflxvideo.net new-connection-mark=netflixconn passthrough=yes \
+    port=443 protocol=tcp
+add action=mark-packet chain=prerouting connection-mark=netflixconn \
+    new-packet-mark=netflixpacket passthrough=no
+add action=mark-connection chain=prerouting comment=>>WHATSAPP \
+    new-connection-mark=whatsappconn passthrough=yes src-address-list=\
+    whatsapp
+add action=mark-connection chain=prerouting dst-address-list=whatsapp \
+    new-connection-mark=whatsappconn passthrough=yes
+add action=mark-packet chain=prerouting connection-mark=whatsappconn \
+    new-packet-mark=whatsapppacket passthrough=no
+add action=mark-connection chain=prerouting comment=>>DNS dst-port=53 \
+    new-connection-mark=dnsconn passthrough=yes protocol=tcp
+add action=mark-connection chain=prerouting dst-port=53 new-connection-mark=\
+    dnsconn passthrough=yes protocol=udp
+add action=mark-packet chain=prerouting connection-mark=dnsconn \
+    new-packet-mark=dnspacket passthrough=no
+add action=mark-connection chain=prerouting comment=PRIMA-SFTP-SPEEDTEST \
+    dst-address-list=sftp.fibertel.com.ar dst-port=80 new-connection-mark=\
+    spsprima passthrough=yes protocol=tcp
+add action=mark-packet chain=prerouting connection-mark=spsprima \
+    new-packet-mark=spsprima passthrough=no
+add action=mark-connection chain=prerouting comment=Skype dst-address-list=\
+    skype new-connection-mark=skypeconn passthrough=yes
+add action=mark-packet chain=prerouting connection-mark=skypeconn \
+    new-packet-mark=skypepackets passthrough=no
+add action=mark-connection chain=prerouting comment=\
+    "Windows Update y el maldito BING" connection-state=established,new \
+    dst-address-list=microsoft dst-port=80 new-connection-mark=wupdateconn \
+    passthrough=no protocol=tcp
+add action=mark-packet chain=prerouting connection-mark=wupdateconn \
+    new-packet-mark=wupdatepackets passthrough=no
+add action=mark-connection chain=prerouting comment=>>Http dst-port=80 \
+    new-connection-mark=httpconn passthrough=yes protocol=tcp
+add action=mark-packet chain=prerouting connection-mark=httpconn \
+    new-packet-mark=httppacket passthrough=no
+add action=mark-connection chain=prerouting comment=">>Https 443" dst-port=\
+    443 new-connection-mark=httpsconn passthrough=yes protocol=tcp
+add action=mark-connection chain=prerouting dst-port=443 new-connection-mark=\
+    httpsconn passthrough=yes protocol=udp
+add action=mark-packet chain=prerouting connection-mark=httpsconn \
+    new-packet-mark=httpspacket passthrough=no
+add action=mark-connection chain=prerouting comment=>>Otros \
+    new-connection-mark=otrosconn passthrough=yes
+add action=mark-packet chain=prerouting connection-mark=otrosconn \
+    new-packet-mark=otrospacket passthrough=no
+/ip firewall nat
+add action=dst-nat chain=dstnat disabled=yes dst-port=3389 protocol=tcp \
+    to-addresses=192.168.6.97 to-ports=3389
+add action=dst-nat chain=dstnat disabled=yes dst-port=80 in-interface=BrdLink \
+    protocol=tcp to-addresses=192.168.6.97 to-ports=80
+add action=redirect chain=dstnat comment=dns disabled=yes dst-port=53 \
+    protocol=tcp to-ports=53
+add action=redirect chain=dstnat disabled=yes dst-port=53 protocol=udp \
+    to-ports=53
+add action=masquerade chain=srcnat comment="Masq internet" src-address=\
+    192.168.6.0/24
+add action=masquerade chain=srcnat comment="Masq internet" disabled=yes \
+    src-address=10.10.10.0/24
+/ip route
+add distance=1 gateway=192.168.100.1 routing-mark=salenporadsl
+add distance=1 gateway=192.168.3.1
+/ip service
+set www disabled=yes
+set api disabled=yes
+set api-ssl disabled=yes
+/ppp secret
+add name=eze password=wincornixdorf profile=default-encryption service=pptp
+/system clock
+set time-zone-name=America/Argentina/Buenos_Aires
+/system identity
+set name=depo
+/system watchdog
+set watchdog-timer=no
+/tool sniffer
+set file-name=speds filter-interface=bridge1 filter-ip-address=\
+    192.168.6.44/32
