@@ -1,0 +1,33 @@
+# nov/01/2017 16:50:27 by RouterOS 6.37
+# software id = E683-L9G7
+#
+/interface bridge
+add mtu=1500 name=BrdLink protocol-mode=none
+add name=bridge1 protocol-mode=none
+
+/queue simple
+add max-limit=2M/4M name="EGGER TESTEOS" packet-marks=clientesvip target=\
+    192.168.6.0/24
+add max-limit=256k/256k name="MI QUEUE NO EGGER" packet-marks=no-mark target=\
+    192.168.6.44/32
+add max-limit=400k/400k name="motog5 eze NO EGGER" target=192.168.6.43/32
+/ip address
+add address=50.0.0.24/24 interface=BrdLink network=50.0.0.0
+/ip firewall mangle
+add action=add-src-to-address-list address-list=clientesvip \
+    address-list-timeout=2w1d chain=prerouting dst-address=194.107.93.34 \
+    src-address-list=!clientesvip
+add action=mark-packet chain=prerouting comment=procesado new-packet-mark=\
+    clientesvip passthrough=yes src-address-list=clientesvip
+add action=mark-packet chain=postrouting dst-address-list=clientesvip \
+    new-packet-mark=clientesvip passthrough=yes
+add action=mark-routing chain=prerouting new-routing-mark=clientesvip \
+    passthrough=no src-address-list=clientesvip
+/ip firewall nat
+add action=masquerade chain=srcnat comment="Masq internet" out-interface=\
+    BrdLink routing-mark=clientesvip src-address=192.168.6.0/24
+add action=masquerade chain=srcnat comment="Masq internet" src-address=\
+    192.168.6.0/24
+/ip route
+add distance=1 gateway=50.0.0.1 routing-mark=clientesvip
+add distance=1 gateway=192.168.3.1
