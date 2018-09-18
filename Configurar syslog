@@ -1,0 +1,10 @@
+
+
+/system logging action
+set 3 bsd-syslog=yes remote=181.181.181.181 remote-port=514
+/system logging
+set 3 action=remote
+add action=remote topics=warning
+add action=remote topics=error
+add action=remote topics=critical
+add action=remote topics=info
