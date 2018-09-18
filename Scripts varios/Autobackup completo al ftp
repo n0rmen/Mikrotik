@@ -1,0 +1,45 @@
+
+
+/system scheduler
+add interval=1d name=ftpbackup on-event="system script run ftpbackup" policy=\
+    ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon \
+    start-date=jul/31/2017 start-time=20:00:00
+/system script
+add name=ftpbackup owner=admin policy=\
+    ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="#\
+    \_editar esto con los datos correspondientes, la carpeta tiene que ser un \
+    directorio existente si o si\r\
+    \n:global folder \"carpetadebackups\"\r\
+    \n:global password \"verdurapassword123\"\r\
+    \n:global username \"verdurausuario123\"\r\
+    \n:global ftpserver \"111.111.111.111\"\r\
+    \n\r\
+    \n:global hostname ([/system identity get name]);\r\
+    \n:global time [/system clock get time];\r\
+    \n:global date ([:pick [/system clock get date] 0 3]  \\\r\
+    \n. [:pick [/system clock get date] 4 6] \\\r\
+    \n. [:pick [/system clock get date] 7 11]);\r\
+    \n:local filename \"\$date----\$hostname\";\r\
+    \n# :local filename \"\$date---\$time---\$hostname\";\r\
+    \nexport  file=\"\$filename\"\r\
+    \n# /system backup save name=\"\$filename\"\r\
+    \n\r\
+    \n/tool fetch address=\$ftpserver src-path=\"\$filename.rsc\" user=\$usern\
+    ame mode=ftp password=\$password dst-path=(\$folder . \"/\$filename.rsc\")\
+    \_upload=yes\r\
+    \n# /tool fetch address=\$ftpserver src-path=\"\$filename.backup\" user=\$\
+    username mode=ftp password=\$password dst-path=(\$folder . \"/\$filename.b\
+    ackup\") upload=yes\r\
+    \n#descomentar esta linea si se quieren obtener archivos .backup ademas de\
+    l export \r\
+    \n:log info \"Backup subido al FTP\";\r\
+    \n/file remove \"\$filename.rsc\"\r\
+    \n/file remove \"\$filename.backup\"\r\
+    \n"
+/system ntp client
+set enabled=yes primary-ntp=216.239.35.4 secondary-ntp=216.239.35.0
+/system clock
+set time-zone-autodetect=no time-zone-name=America/Argentina/Buenos_Aires
+
+
+
