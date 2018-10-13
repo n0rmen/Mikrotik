@@ -1,0 +1,36 @@
+/ip firewall filter
+add action=accept chain=forward comment=Morosos dst-address=200.43.234.48 \
+    src-address-list=Morosos
+add action=accept chain=forward dst-address=200.43.234.99 src-address-list=\
+    Morosos
+add action=accept chain=forward dst-port=53 protocol=tcp src-address-list=\
+    Morosos
+add action=accept chain=forward dst-port=53 protocol=udp src-address-list=\
+    Morosos
+add action=drop chain=forward src-address-list=Morosos
+/ip firewall nat
+add action=dst-nat chain=dstnat comment="Corte Morosos !!!" dst-port=80 \
+    protocol=tcp src-address-list=Morosos to-addresses=200.43.234.48 to-ports=\
+    80
+add action=dst-nat chain=dstnat comment=Preaviso dst-port=80 protocol=tcp \
+    src-address-list=PREAVISO to-addresses=200.43.234.48 to-ports=81
+
+
+
+
+
+/system watchdog
+set no-ping-delay=7m watch-address=10.12.1.1
+
+/ip service
+set telnet disabled=yes
+set ftp disabled=yes
+set www disabled=yes
+set ssh disabled=yes
+set api-ssl disabled=yes
+
+
+/snmp community
+set [ find default=yes ] addresses=0.0.0.0/0 name=Ispcom
+/snmp
+set enabled=yes
